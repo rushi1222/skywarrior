@@ -1,0 +1,41 @@
+my information
+-------
+game name: skywars
+Creator: SAI ESWAR RUSHIDEEP
+maidid: k.rushi1222@gmail.com
+github link: https://github.com/rushi1222/skywars
+youtube link: https://www.youtube.com/watch?v=IbAjkP9-6xs&ab_channel=Laughtale
+
+game description
+--------
+skywars is a jet fighter game made with pygames and pyinstaller.
+the player kills the enemy ships with bullets by romaing around the skies
+
+features in game
+-------
+
+1. enemies that try to hunt down player ships with bullets and missiles
+2. missiles have inbuilt homing functionality with limited fuel which will track the player down
+3. the player can track enemies till certain range using radar on the top left corner of the Screen
+5. there are 5 levels which become progressively harder
+6. two types are enemy ships are there in this game
+7. player can increase his speed try to outrun the enemy ship with limited special fuel
+8. the player can slow the game pace as bullet time feature in popular game like maxpayne
+9. player can shoot bullets to kill the enemies
+10. enemies also die by getting hit by missiles
+11. player has less normal speed than enemies but more turning capability
+
+Game keys
+------
+W,A,D - for motion
+shift-  for speed
+ctrl -  to slow the game pace
+spacebar -  to fire bullets
+
+game menu
+-------
+play - to start game
+levels- to change levels
+quit - to quit game
+
+
