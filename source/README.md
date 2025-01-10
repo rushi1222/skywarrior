@@ -1,4 +1,4 @@
-# SkyWars
+# SkyWarrior
 
 ![SkyWars Banner](images/banner.png) *(Ensure you have a banner image in the `images` directory)*
 
@@ -106,7 +106,7 @@ cd skywars
 ## Project Structure
 
 ```
-skywars/
+skywarrior/
 ├── images/
 │   ├── background.png
 │   ├── bullet.png
