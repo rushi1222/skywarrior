@@ -575,14 +575,16 @@ class Game:
             self.menu_system.state = "level_finished"
 
 
-        if self.player.health <= 0 and self.close_time == 0:
-            self.close_time = 100
-
-        if(self.close_time > 0):
-            self.close_time -= 1
-
-        if self.player.health<= 0 and self.close_time == 1:
-            self.menu_system.state = "level_finished"
+       # Update high score even if the player dies
+        if self.player.health <= 0:
+            # Ensure high score is updated even on failure
+            self.menu_system.database.update_high_score_db(self.score)
+            if self.close_time == 0:
+                self.close_time = 100
+            if self.close_time > 0:
+                self.close_time -= 1
+            if self.close_time == 1:
+                self.menu_system.state = "level_finished"
 
     def update(self):
         self.shakescreen()
