@@ -96,6 +96,12 @@ class Game:
         self.turn_screen_red = False
         self.turn_screen_normal = False
 
+        # Scoring System
+        self.score = 0  # Current score
+        self.high_score = self.menu_system.database.get_high_score()
+        self.floating_scores = []  # For floating score notifications
+        self.score_changed = False
+        self.score_scale = 1
 
     def initiate_game(self):
         level = self.menu_system.level_selected
@@ -117,6 +123,7 @@ class Game:
 
         self.player = player.Player()
         self.player.pos = [500, 0]
+        self.score = 0
 
     def get_exp(self, pos):
         return [pos, 0, 10, 0, 10]
@@ -331,6 +338,26 @@ class Game:
     def draw_hud(self):
         self.draw_player_health()
         self.draw_player_throttle()
+        self.draw_score()
+
+    def draw_score(self):
+        font = py.font.Font(None, 36)
+        score_text = font.render(f"Score: {self.score}", True, (255, 255, 255))
+        # Animate score scaling for visual feedback
+        if self.score_changed:
+            self.score_scale = min(self.score_scale + 0.1, 1.5)
+        else:
+            self.score_scale = max(self.score_scale - 0.1, 1)
+        
+        if self.score_scale > 1:
+            self.score_changed = False  # Reset after animation
+        
+        scaled_score = py.transform.scale(score_text, (
+            int(score_text.get_width() * self.score_scale),
+            int(score_text.get_height() * self.score_scale)
+        ))
+        self.win.blit(scaled_score, (config.screen_width - 150, 10))
+
 
     def draw_player_health(self):
         hudbase = self.hud_base.copy()
@@ -381,6 +408,10 @@ class Game:
                 self.turn_screen_red = True
                 self.turn_screen_normal = False
 
+                # Score Penalty for Taking Damage
+                self.score -= 50
+                self.add_score(-50, self.player.pos)  # Visual Feedback for Penalty
+
                 if self.player.health <= 0:
                     self.explosions.append(self.get_exp(self.player.pos))
                     self.player.live = False
@@ -394,6 +425,16 @@ class Game:
                     self.missiles_exploded.append(vectors.norm(vectors.sub_vec(missile.pos,self.player.pos)))
                     self.explosions.append(self.get_exp(missile.pos))
                     fighter.health-= 10
+
+                    if fighter.health <= 0:
+                        fighter.killit = True
+                        self.score += 100  # Enemy Fighter Destruction
+                        self.add_score(100, missile.pos)  # Visual Feedback for Score Gain
+
+                        # Additional points for EMP Fighter
+                        if isinstance(fighter, fighter.EmpFighter):
+                            self.score += 50
+                            self.add_score(50, missile.pos)  # Visual Feedback for Extra Score
 
         #enemy player collision
         if self.player.live:
@@ -445,6 +486,8 @@ class Game:
                     fighter.health -= 10
                     hitted_bullets.append(b)
                     self.fighterhit = True
+                    self.score += 10
+                    self.add_score(10, b.pos)
                     # self.sparkSystem.add_particles(b.pos,fighter.v,25)
                     if fighter.health <= 0:
                         fighter.killit = True
@@ -463,6 +506,11 @@ class Game:
                     self.turn_screen_normal = False
                     hitted_bullets.append(b)
                     self.playerhit = True
+
+                     # Score Penalty for Taking Damage
+                    self.score -= 10
+                    self.add_score(-10, self.player.pos)  # Visual Feedback for Penalty
+                    
                     if self.player.health <= 0:
                         self.player.health = 0
                         self.missiles_exploded.append(0)
@@ -519,9 +567,11 @@ class Game:
     def check_level_completed(self):
 
         if self.player.health> 0 and len(self.missiles.sprites())==0 and len(self.fighters.sprites())==0 and len(self.emps.sprites())==0 and len(self.enemiesbullets.bullets.sprites())==0 and len(self.explosions)==0:
-
+            self.score += 500  # Level Completion Bonus
+            self.add_score(500, self.player.pos)  # Visual Feedback for Score Gain
             if self.menu_system.database.levelunlocked == self.menu_system.level_selected:
                 self.menu_system.database.update_level()
+            self.menu_system.database.update_high_score_db(self.score)
             self.menu_system.state = "level_finished"
 
 
@@ -666,6 +716,32 @@ class Game:
             self.shake = False
             self.shakecount = 0
 
+
+    def add_score(self, points, position):
+        self.score += points
+        if points > 0:
+            # Positive score: add to high_score if necessary
+            if self.score > self.high_score:
+                self.high_score = self.score
+        # Trigger score animation
+        self.score_changed = True
+
+        # Create a floating text at the position
+        floating_text = {
+            "text": f"{'+' if points >=0 else ''}{points}",
+            "position": [position[0] - self.player.pos[0] + config.screen_width / 2, position[1] - self.player.pos[1] + config.screen_height / 2],
+            "timer": 60  # Frames the text will stay on screen
+        }
+        self.floating_scores.append(floating_text)
+
+    def draw_floating_scores(self):
+        for text in self.floating_scores[:]:
+            font = py.font.Font(None, 24)
+            score_surface = font.render(text["text"], True, (255, 215, 0))
+            self.win.blit(score_surface, text["position"])
+            text["timer"] -= 1
+            if text["timer"] <= 0:
+                self.floating_scores.remove(text)
 
     def run(self):
         self.sounds.playTheme()
