@@ -22,4 +22,3 @@ class SmallFontSystem:
         text = self.basicfont.render(text, True, color)
         textrect = text.get_rect()
         return [text,textrect]
-

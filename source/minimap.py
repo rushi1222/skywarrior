@@ -30,4 +30,3 @@ class Minimap:
         self.image = self.permimage.copy()
         for pos in self.positions:
             py.draw.circle(self.image,(255,0,0),pos,2,2)
-

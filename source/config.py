@@ -1,4 +1,3 @@
-
 dt = 0.10
 
 # display parameters

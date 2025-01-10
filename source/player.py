@@ -1,27 +1,23 @@
-import pygame as py
 from object import Object
 import particle
 import config
+import pygame as py
+import spritesheet
 import math
 import random
 import time
 
-class Player(py.sprite.Sprite, Object):
+class Player(py.sprite.Sprite,Object):
     def __init__(self):
-        super().__init__()
         Object.__init__(self)
-        self.speed = config.normal_speed  # Current speed
-        self.max_speed = config.normal_speed + 200  # Maximum speed
-        self.acceleration = 300  # Acceleration rate (pixels per second^2)
-        self.deceleration = 300  # Deceleration rate
-        self.turn_speed = 200  # Degrees per second
-        self.angular_velocity = 0  # Current angular velocity
-        self.image_original = py.image.load("../images/top1.png").convert_alpha()
-        self.image = self.image_original.copy()
-        self.rect = self.image.get_rect(center=(config.screen_width/2, config.screen_height/2))
-        self.angle = 0  # Current facing angle
-        self.velocity = [0, 0]  # Current velocity vector
+        py.sprite.Sprite.__init__(self)
+        self.speed= config.normal_speed
+        self.turn_speed = 3.3
         self.particle_system = particle.ParticleSystem()
+        self.vParticle_system = particle.VelocityParticleSystem()
+        self.imgs = []
+        self.sonic_imgs = []
+        self.boom_imgs = []
         self.health = config.player_health
         self.live = True
         self.turbo = 100
@@ -30,7 +26,6 @@ class Player(py.sprite.Sprite, Object):
         self.slowvalue = 1
         self.emp_duration = 0
         self.fuel = 500
-        self.shoottimer = time.time()
 
         for i in range(6):
             self.imgs.append(py.image.load("../images/top"+str(i+1)+".png"))

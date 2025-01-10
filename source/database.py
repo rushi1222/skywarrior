@@ -53,4 +53,3 @@ class Database:
 if __name__ == '__main__':
     d = Database()
     d.updateLevel(1)
-

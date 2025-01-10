@@ -66,7 +66,3 @@ class BulletsSystem:
 
             else:
                 b.kill()
-
-
-
-

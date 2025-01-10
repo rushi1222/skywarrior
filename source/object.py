@@ -1,4 +1,3 @@
-
 import math
 import config
 
@@ -62,4 +61,3 @@ class Object:
                 return 180-a
             else:
                 return a-180
-
