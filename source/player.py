@@ -1,23 +1,27 @@
+import pygame as py
 from object import Object
 import particle
 import config
-import pygame as py
-import spritesheet
 import math
 import random
 import time
 
-class Player(py.sprite.Sprite,Object):
+class Player(py.sprite.Sprite, Object):
     def __init__(self):
+        super().__init__()
         Object.__init__(self)
-        py.sprite.Sprite.__init__(self)
-        self.speed= config.normal_speed
-        self.turn_speed = 3.3
+        self.speed = config.normal_speed  # Current speed
+        self.max_speed = config.normal_speed + 200  # Maximum speed
+        self.acceleration = 300  # Acceleration rate (pixels per second^2)
+        self.deceleration = 300  # Deceleration rate
+        self.turn_speed = 200  # Degrees per second
+        self.angular_velocity = 0  # Current angular velocity
+        self.image_original = py.image.load("../images/top1.png").convert_alpha()
+        self.image = self.image_original.copy()
+        self.rect = self.image.get_rect(center=(config.screen_width/2, config.screen_height/2))
+        self.angle = 0  # Current facing angle
+        self.velocity = [0, 0]  # Current velocity vector
         self.particle_system = particle.ParticleSystem()
-        self.vParticle_system = particle.VelocityParticleSystem()
-        self.imgs = []
-        self.sonic_imgs = []
-        self.boom_imgs = []
         self.health = config.player_health
         self.live = True
         self.turbo = 100
@@ -26,6 +30,7 @@ class Player(py.sprite.Sprite,Object):
         self.slowvalue = 1
         self.emp_duration = 0
         self.fuel = 500
+        self.shoottimer = time.time()
 
         for i in range(6):
             self.imgs.append(py.image.load("../images/top"+str(i+1)+".png"))
@@ -150,15 +155,21 @@ class Player(py.sprite.Sprite,Object):
         r = math.radians(-self.angle-180+90)
         r1 = math.radians(-self.angle - 180 - 90)
         r2 = math.radians(self.angle+random.randint(-90,90))
-        p1 = self.multiply(5,[math.cos(r),math.sin(r)])
+        p1 = self.multiply(5, [math.cos(r), math.sin(r)])
         p2 = self.multiply(random.randint(10, 45), [math.cos(r), math.sin(r)])
         if self.live:
-            self.particle_system.add_particle(self.add_vec(self.pos, p1))
-            vv = [self.v[0], self.v[1]]
-            self.vParticle_system.add_particle(self.add_vec(self.pos, p2), vv)
+           # Emit trail particles with some randomness
+             # Particle emission behind the player
+            trail_offset = self.multiply(-self.width * 0.4, self.v)
+            trail_pos = self.add_vec(self.pos, trail_offset)
+            
+            trail_velocity = self.multiply(-0.3, self.v)
+            self.particle_system.add_particle(trail_pos, trail_velocity)
 
         self.rot_center()
-        self.frame = (self.frame+1)%18
+        self.frame = (self.frame + 1) % 18
+
+        
         #sounds
 
     def renderPosition(self):

@@ -3,12 +3,39 @@ import config
 import vectors
 import random
 import math
-
+import pygame as py
 class Particle(object.Object):
-    def __init__(self,pos):
+    def __init__(self, pos, color=(255, 255, 255), size=5, lifespan=50):
         object.Object.__init__(self)
         self.pos = list(pos)
-        self.size = 1
+        self.size = size
+        self.color = color  # RGB color
+        self.lifespan = lifespan  # Frames until the particle disappears
+        self.alpha = 255  # Full opacity
+
+    def update(self, slowvalue):
+        # Update position based on velocity
+        self.pos[0] += self.v[0] * config.dt * slowvalue
+        self.pos[1] += self.v[1] * config.dt * slowvalue
+
+        # Decrease lifespan and alpha
+        self.lifespan -= 1 * slowvalue
+        if self.lifespan > 0:
+            self.alpha = max(0, int((self.lifespan / 50) * 255))
+        else:
+            self.alpha = 0
+
+    def draw(self, surface, ref):
+        if self.alpha > 0:
+            # Create a surface for the particle with per-pixel alpha
+            particle_surface = py.Surface((self.size * 2, self.size * 2), py.SRCALPHA)
+            py.draw.circle(particle_surface, (*self.color, self.alpha), (self.size, self.size), self.size)
+            # Calculate the particle's screen position with screen center offset
+            screen_x = self.pos[0] - ref[0] + config.screen_width / 2 - self.size
+            screen_y = self.pos[1] - ref[1] + config.screen_height / 2 - self.size
+            # Blit the particle onto the main surface
+            surface.blit(particle_surface, (screen_x, screen_y))
+
 
 class Colored_Particle(object.Object):
     def __init__(self,pos):
@@ -59,20 +86,26 @@ class SparkSystem:
 
 
 class ParticleSystem:
-    def __init__(self):
+    def __init__(self, color=(255, 255, 255), size=5, lifespan=30):
         self.particles = []
-        self.particle_release_time = 0
-        self.particle_limits = 50
+        self.color = color
+        self.size = size
+        self.lifespan = lifespan
 
-    def add_particle(self,pos):
-        self.particle_release_time += 1
-        if self.particle_release_time > 10:
+    def add_particle(self, pos, velocity):
+        particle = Particle(pos, self.color, self.size, self.lifespan)
+        particle.v = velocity
+        self.particles.append(particle)
 
-            self.particles.append(Particle(pos))
-            self.particle_release_time = 0
+    def update(self, slowvalue):
+        for particle in self.particles[:]:
+            particle.update(slowvalue)
+            if particle.lifespan <= 0:
+                self.particles.remove(particle)
 
-        if len(self.particles) > self.particle_limits:
-            self.particles.pop(0)
+    def draw(self, surface, ref):
+        for particle in self.particles:
+            particle.draw(surface, ref)
 
     def renderPosition(self, ref,):
         for p in self.particles:

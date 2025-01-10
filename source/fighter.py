@@ -163,7 +163,8 @@ class Fighter(py.sprite.Sprite, object.Object):
         self.v = self.unit(self.v)
         self.pos = self.add_vec(self.pos, self.multiply(self.speed * config.dt * slowvalue, self.v))
         if not self.killit:
-            self.particle_system.add_particle(self.pos)
+            trail_velocity = self.multiply(-0.3, self.v)  # Adjust the scalar (-0.3) as needed for effect
+            self.particle_system.add_particle(self.pos, trail_velocity)
         self.rot_center()
         self.renderPosition(playerpos)
         self.rect.centerx = self.renderpos[0]
@@ -226,7 +227,8 @@ class EmpFighter(Fighter):
         self.v = self.unit(self.v)
         self.pos = self.add_vec(self.pos, self.multiply(self.speed * config.dt * slowvalue, self.v))
         if not self.killit:
-            self.particle_system.add_particle(self.pos)
+            trail_velocity = self.multiply(-0.3, self.v)  # Adjust the scalar (-0.3) as needed for effect
+            self.particle_system.add_particle(self.pos, trail_velocity)
         self.rot_center()
         self.renderPosition(playerpos)
         self.rect.centerx = self.renderpos[0]

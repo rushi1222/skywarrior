@@ -231,6 +231,12 @@ class Game:
                 figh.rect.centery += self.camoffy
             self.fighters.draw(self.win)
 
+            # Draw particle systems for all sprites
+            for missile in self.missiles.sprites():
+                missile.particle_system.draw(self.win, self.player.pos)
+
+            
+
             # for missile in self.missiles.sprites():
             #     for i in missile.particle_system.particles:
             #         if (i.size < config.particle_expansion_size):
