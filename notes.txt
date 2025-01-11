@@ -1,8 +1,8 @@
 my information
 -------
 game name: skywars
-Creator: SAI ESWAR RUSHIDEEP
-maidid: k.rushi1222@gmail.com
+Creator: SAI ESWAR RUSHIDEEP, Dhrumilkumar Patel
+mailid: k.rushi1222@gmail.com, dhrumil1612@icloud.com
 github link: https://github.com/rushi1222/skywars
 youtube link: https://www.youtube.com/watch?v=IbAjkP9-6xs&ab_channel=Laughtale
 
