@@ -1,8 +1,8 @@
-# SkyWarrior
+# Sky Warrior
 
 ![SkyWars Banner](https://github.com/rushi1222/skywarrior/blob/main/images/background.png) 
 
-**SkyWars** is an engaging 2D space combat game developed using Pygame. Take control of your spaceship, navigate through enemy-filled skies, and engage in intense battles against formidable foes. With dynamic AI opponents, strategic gameplay mechanics, and stunning visual effects, SkyWars offers an exhilarating experience for space enthusiasts and gamers alike.
+**Sky Warrior** is an engaging 2D space combat game developed using Pygame. Take control of your spaceship, navigate through enemy-filled skies, and engage in intense battles against formidable foes. With dynamic AI opponents, strategic gameplay mechanics, and stunning visual effects, SkyWars offers an exhilarating experience for space enthusiasts and gamers alike.
 
 ---
 
@@ -76,7 +76,7 @@ In **SkyWars**, you pilot a spaceship through challenging levels filled with ene
 
 ```bash
 git clone https://github.com/rushi1222/skywars.git
-cd skywars
+cd SKYWARRIOR
 ```
 
 ---
@@ -86,7 +86,7 @@ cd skywars
 1. **Navigate to the Project Directory:**
 
    ```bash
-   cd skywars
+   cd source
    ```
 
 2. **Ensure All Dependencies Are Installed:**
