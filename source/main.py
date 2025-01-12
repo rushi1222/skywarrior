@@ -20,6 +20,21 @@ import io
 import assets
 # import particle
 
+IMAGE_CACHE = {}
+
+def get_bg_image():
+    if "bg_image" in IMAGE_CACHE:
+        return IMAGE_CACHE["bg_image"]
+
+    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/BG.png"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"Could not download background from {url}")
+
+    bg_bytes = io.BytesIO(response.content)
+    surface = py.image.load(bg_bytes).convert_alpha()
+    IMAGE_CACHE["bg_image"] = surface
+    return surface
 
 class Game:
     def __init__(self):
@@ -44,7 +59,7 @@ class Game:
         self.slowduration = 10
         self.clock = py.time.Clock()
 
-         # 1) Fetch from S3
+        # 1) Fetch from S3 (HUD)
         url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/hud.png"
         response = requests.get(url)
         image_bytes = io.BytesIO(response.content)
@@ -87,6 +102,7 @@ class Game:
 
         self.dirty_rects = []
         self.game_exists = False
+
         #######sounds#####
         self.sounds = sound.Sound()
         self.playerhit = False
@@ -95,7 +111,10 @@ class Game:
         self.tickhighspeed = 0.1
         self.tickspeedrate = 0.05
         self.tickspeed = 0.1
-        self.bg_image = py.image.load('BG.PNG').convert_alpha()
+        
+        self.bg_image = get_bg_image()
+
+        # Create an empty surface matching bg size (if you need it)
         self.background = py.Surface(self.bg_image.get_size(), py.SRCALPHA)
 
         # self.win = py.display.set_mode((self.screen_width, self.screen_height))
