@@ -3,12 +3,30 @@ import fighter
 import missile
 import vectors
 import math
+import requests
+import io
+
+IMAGE_CACHE = {}
+
+def get_map_outline():
+    if "mapoutline" in IMAGE_CACHE:
+        return IMAGE_CACHE["mapoutline"]
+
+    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/mapoutline.png"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"Could not download mapoutline from {url}")
+
+    img_bytes = io.BytesIO(response.content)
+    outline_surf = py.image.load(img_bytes).convert_alpha()
+    IMAGE_CACHE["mapoutline"] = outline_surf
+    return outline_surf
 
 class Minimap:
 
     def __init__(self):
-        self.permimage = py.image.load("../images/mapoutline.png")
-        self.permimage = py.transform.scale(self.permimage,(128,128))
+        self.permimage = get_map_outline()
+        self.permimage = py.transform.scale(self.permimage, (128,128))
         self.image = self.permimage.copy()
         self.positions = []
         pass

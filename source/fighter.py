@@ -6,16 +6,68 @@ import missile
 import particle
 import random
 import time
+import requests
+import io
 
+IMAGE_CACHE = {}
+
+def get_fighter_images():
+    """
+    Returns a list [surface1, surface2, ..., surface5] for the fighter.
+    Downloads each only once.
+    """
+    # If we already have them in the cache, return them.
+    if "fighter_images" in IMAGE_CACHE:
+        return IMAGE_CACHE["fighter_images"]
+
+    fighter_imgs = []
+    for x in range(1, 6):
+        url = f"https://sky-warrior.s3.us-east-2.amazonaws.com/images/fighter{x}.png"
+        response = requests.get(url)
+        if response.status_code != 200:
+            raise FileNotFoundError(f"Could not download {url}")
+
+        image_bytes = io.BytesIO(response.content)
+        sprite_image = py.image.load(image_bytes).convert_alpha()
+        fighter_imgs.append(sprite_image)
+
+    IMAGE_CACHE["fighter_images"] = fighter_imgs
+    return fighter_imgs
+
+
+def get_emp_images():
+    """
+    Returns a list of surfaces [empjet1.png, ..., empjet4.png].
+    """
+    if "emp_images" in IMAGE_CACHE:
+        return IMAGE_CACHE["emp_images"]
+
+    emp_imgs = []
+    for x in range(1, 5):
+        url = f"https://sky-warrior.s3.us-east-2.amazonaws.com/images/empjet{x}.png"
+        response = requests.get(url)
+        if response.status_code != 200:
+            raise FileNotFoundError(f"Could not download {url}")
+
+        image_bytes = io.BytesIO(response.content)
+        sprite_image = py.image.load(image_bytes).convert_alpha()
+        emp_imgs.append(sprite_image)
+
+    IMAGE_CACHE["emp_images"] = emp_imgs
+    return emp_imgs
 
 class Fighter(py.sprite.Sprite, object.Object):
 
     def __init__(self):
         py.sprite.Sprite.__init__(self)
         object.Object.__init__(self)
-        self.imgs = [py.image.load("../images/fighter" + str(x) + ".png") for x in range(1, 6)]
+        # Download multiple images (fighter1, fighter2, fighter3, fighter4, fighter5)
+        self.imgs = get_fighter_images()
+
+        # Now we have 5 images in self.imgs
         self.image = self.imgs[0]
         self.rect = self.image.get_rect()
+
         self.speed = 100
         self.turn_speed = config.fighter_turn_speed
         self.health = 100
@@ -173,8 +225,13 @@ class Fighter(py.sprite.Sprite, object.Object):
 
 class EmpFighter(Fighter):
     def __init__(self):
+        # Call parent initializer
         Fighter.__init__(self)
-        self.imgs = [py.image.load("../images/empjet" + str(x) + ".png") for x in range(1, 5)]
+
+        # Clear out self.imgs or redefine it,
+        # because the parent class (Fighter) already populates `self.imgs` with fighter images.
+        self.imgs = get_emp_images()
+
         self.active_emp = None
 
     def update(self, playerpos, speed, slowvalue, player_live):

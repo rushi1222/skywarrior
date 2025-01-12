@@ -3,13 +3,41 @@ import math
 import vectors
 import config
 import random
+import requests
+import io
+
+# Global dictionary to store surfaces
+IMAGE_CACHE = {}
+
+def get_cloud_image(index):
+    """
+    Returns a Surface for cloud #index from S3, downloaded once.
+    """
+    cache_key = f"cloud{index}"
+    if cache_key in IMAGE_CACHE:
+        return IMAGE_CACHE[cache_key]
+
+    url = f"https://sky-warrior.s3.us-east-2.amazonaws.com/images/clouds/cloud{index}.png"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"Could not download {url}")
+
+    image_bytes = io.BytesIO(response.content)
+    img = py.image.load(image_bytes).convert_alpha()
+
+    # scale to self.scale if needed (optional, or do it later in code)
+    # but if you do the scaling here, store the scaled version in the cache
+
+    IMAGE_CACHE[cache_key] = img
+    return img
 
 class Clouds:
     def __init__(self):
         self.cloud_imgs = []
         self.scale = 700
         for i in range(1,14):
-            img = py.image.load("../images/clouds/cloud"+str(i)+".png")
+
+            img = get_cloud_image(i)
             img = py.transform.scale(img,(self.scale,self.scale))
             self.cloud_imgs.append(img)
 

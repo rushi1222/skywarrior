@@ -15,7 +15,11 @@ import menu
 import clouds
 import emp
 import random
+import requests
+import io
+import assets
 # import particle
+
 
 class Game:
     def __init__(self):
@@ -39,7 +43,13 @@ class Game:
         self.slowtime = False
         self.slowduration = 10
         self.clock = py.time.Clock()
-        self.hud_base = py.transform.scale(py.image.load("../images/hud.png"), (200, 200))
+
+         # 1) Fetch from S3
+        url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/hud.png"
+        response = requests.get(url)
+        image_bytes = io.BytesIO(response.content)
+        
+        self.hud_base = py.transform.scale(py.image.load(image_bytes), (200, 200))
 
         self.explode = explosion.Explosion()
 
@@ -753,6 +763,19 @@ class Game:
             self.draw()
             self.clock.tick(40)
 
-if __name__ == '__main__':
-    g = Game()
+def main():
+    # Initialize pygame + display
+    py.init()
+    py.font.init()
+    window = py.display.set_mode((config.screen_width, config.screen_height))
+    py.display.set_caption("SkyWars")
+
+    # Now that display is initialized, preload all assets
+    assets.preload_all_assets()
+
+    # Then create your Game object (which will use cached assets)
+    g = Game()  
     g.run()
+
+if __name__ == '__main__':
+    main()

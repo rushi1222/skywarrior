@@ -6,6 +6,77 @@ import spritesheet
 import math
 import random
 import time
+import requests
+import io
+
+IMAGE_CACHE = {}
+
+def get_player_top_image(i):
+    cache_key = f"top_{i}"
+    if cache_key in IMAGE_CACHE:
+        return IMAGE_CACHE[cache_key]
+
+    url = f"https://sky-warrior.s3.us-east-2.amazonaws.com/images/top{i}.png"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"Could not download {url}")
+
+    surf = py.image.load(io.BytesIO(response.content)).convert_alpha()
+    IMAGE_CACHE[cache_key] = surf
+    return surf
+
+def get_sonic_image(i):
+    ck = f"sonic_{i}"
+    if ck in IMAGE_CACHE:
+        return IMAGE_CACHE[ck]
+
+    url = f"https://sky-warrior.s3.us-east-2.amazonaws.com/images/sonic/sonic{i}.png"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"Could not download {url}")
+
+    surf = py.image.load(io.BytesIO(response.content)).convert_alpha()
+    IMAGE_CACHE[ck] = surf
+    return surf
+
+def get_boom_image(i):
+    ck = f"boom_{i}"
+    if ck in IMAGE_CACHE:
+        return IMAGE_CACHE[ck]
+
+    url = f"https://sky-warrior.s3.us-east-2.amazonaws.com/images/sonic/boom/boom{i}.png"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"Could not download {url}")
+
+    surf = py.image.load(io.BytesIO(response.content)).convert_alpha()
+    IMAGE_CACHE[ck] = surf
+    return surf
+
+def get_damage_image():
+    if "damage" in IMAGE_CACHE:
+        return IMAGE_CACHE["damage"]
+
+    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/damage.png"
+    resp = requests.get(url)
+    if resp.status_code != 200:
+        raise FileNotFoundError(f"Could not download damage.png from {url}")
+
+    surf = py.image.load(io.BytesIO(resp.content)).convert_alpha()
+    IMAGE_CACHE["damage"] = surf
+    return surf
+
+def get_ship_image():
+    if "ship" in IMAGE_CACHE:
+        return IMAGE_CACHE["ship"]
+    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/ship.png"
+    resp = requests.get(url)
+    if resp.status_code != 200:
+        raise FileNotFoundError(f"Could not download ship.png from {url}")
+
+    surf = py.image.load(io.BytesIO(resp.content)).convert_alpha()
+    IMAGE_CACHE["ship"] = surf
+    return surf
 
 class Player(py.sprite.Sprite,Object):
     def __init__(self):
@@ -27,12 +98,13 @@ class Player(py.sprite.Sprite,Object):
         self.emp_duration = 0
         self.fuel = 500
 
-        for i in range(6):
-            self.imgs.append(py.image.load("../images/top"+str(i+1)+".png"))
-        for i in range(6):
-            self.sonic_imgs.append(py.image.load("../images/sonic/sonic"+str(i+1)+".png"))
-        for i in range(8):
-            self.boom_imgs.append(py.image.load("../images/sonic/boom/boom"+str(i+1)+".png"))
+        for i in range(1, 7):
+            self.imgs.append(get_player_top_image(i))
+        for i in range(1, 7):
+             self.sonic_imgs.append(get_sonic_image(i))
+        for i in range(1, 9):
+            self.boom_imgs.append(get_boom_image(i))
+            
 
         self.damaging = False
         self.damageshowindex = 0
@@ -41,10 +113,12 @@ class Player(py.sprite.Sprite,Object):
         self.sonic_frame = 0
         self.width = 80
         self.height = 80
-        self.damage_image = py.image.load("../images/damage.png")
+
+        self.damage_image = get_damage_image()
         self.permimage = self.imgs[self.frame]
         self.permimage = py.transform.scale(self.permimage,(self.width,self.height))
-        self.image = py.image.load("../images/ship.png")
+
+        self.image = get_ship_image()
         self.rect = self.permimage.get_rect()
         self.angle = 0
         self.shoottimer = time.time()

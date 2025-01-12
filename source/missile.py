@@ -5,6 +5,25 @@ import config
 import math
 import random
 import time
+import requests
+import io
+
+IMAGE_CACHE = {}
+
+def get_missile_surface():
+    """
+    Returns the missile.png surface from S3, cached.
+    """
+    if "missile" in IMAGE_CACHE:
+        return IMAGE_CACHE["missile"]
+    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/missile.png"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"Could not download missile from {url}")
+    img_bytes = io.BytesIO(response.content)
+    surf = py.image.load(img_bytes).convert_alpha()
+    IMAGE_CACHE["missile"] = surf
+    return surf
 
 class Missile(py.sprite.Sprite, object.Object):
     def __init__(self):
@@ -12,9 +31,13 @@ class Missile(py.sprite.Sprite, object.Object):
         py.sprite.Sprite.__init__(self)
         self.speed = config.missile_speed
         self.turn_speed = config.missile_turn_speed
-        self.particle_system = particle.ParticleSystem(color=(150, 150, 150), size=3, lifespan=30)  # Grey smoke
-        self.permimage = py.image.load("../images/missile.png")
-        self.image = py.image.load("../images/missile.png")
+        self.particle_system = particle.ParticleSystem(color=(150, 150, 150), size=3, lifespan=30)  # Grey particles    
+       
+
+        # Load the missile from the cache
+        self.permimage = get_missile_surface()
+        self.image = self.permimage.copy()
+
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(1000, 2000)
         self.rect.y = random.randint(1000, 2000)

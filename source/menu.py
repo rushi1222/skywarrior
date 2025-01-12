@@ -2,17 +2,58 @@ import pygame as py
 import config
 import font
 import database
+import requests
+import io
+
+# Cache for images loaded in menu
+IMAGE_CACHE = {}
+
+def get_background():
+    """
+    Loads main menu background from S3 and returns a pygame Surface.
+    """
+    if "menu_bg" in IMAGE_CACHE:
+        return IMAGE_CACHE["menu_bg"]
+    
+    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/background.png"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"Could not download {url}")
+
+    image_bytes = io.BytesIO(response.content)
+    bg = py.image.load(image_bytes).convert_alpha()
+    IMAGE_CACHE["menu_bg"] = bg
+    return bg
+
+def get_lock_image():
+    """ Used in 'levelmenu' for the lock icon. """
+    if "lock_image" in IMAGE_CACHE:
+        return IMAGE_CACHE["lock_image"]
+    
+    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/background.png"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"Could not download lock_image from {url}")
+
+    image_bytes = io.BytesIO(response.content)
+    img = py.image.load(image_bytes).convert_alpha()
+    IMAGE_CACHE["lock_image"] = img
+    return img
 
 class Menu:
     def __init__(self):
         self.background = py.Surface((config.screen_width, config.screen_height))
         self.background.fill((0x8c, 0xbe, 0xd6))
+         # Main background image
+        bg_surf = get_background()
+        bg_surf = py.transform.scale(bg_surf, (config.screen_width, config.screen_height))
+        self.backgroundImage = bg_surf
+
         self.pause = False
         self.quit = False
         self.play = False
         self.showmenu = False
-        self.backgroundImage = py.image.load("../images/background.png")
-        self.backgroundImage = py.transform.scale(self.backgroundImage, (config.screen_width, config.screen_height))
+        
         self.finalstates = ["start", "levelmenu", "quitgame", "unpause", "quitlevel", "loadlevel", "pause"]
         self.states = ["mainmenu", "gamemenu", "levelmenu"]
         self.options = {
@@ -120,7 +161,8 @@ class Menu:
             self.menu_surface = self.menu_surface.convert_alpha()
             self.menu_surface.fill((20, 20, 10, 100))
             self.current_option_texts = []
-            lock_image = py.image.load("../images/lock.png")
+
+            lock_image = get_lock_image()
             lock_image = py.transform.scale(lock_image, (16, 16))
             posx = 30
             for level_num in range(1, 6):

@@ -1,6 +1,30 @@
 import config
 import math
 import pygame as py
+import requests
+import io
+
+# Global dictionary to store surfaces
+IMAGE_CACHE = {}
+
+def get_bullet_image():
+    """
+    Returns a Surface of bullet image from S3, downloaded once.
+    """
+    # If it's already in IMAGE_CACHE, return it right away.
+    if "bullet" in IMAGE_CACHE:
+        return IMAGE_CACHE["bullet"]
+
+    # Otherwise, download from S3, store in cache.
+    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/bullet.png"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise FileNotFoundError(f"Failed to load bullet.png from {url}")
+
+    image_bytes = io.BytesIO(response.content)
+    surface = py.image.load(image_bytes).convert_alpha()
+    IMAGE_CACHE["bullet"] = surface
+    return surface
 class Bullet(py.sprite.Sprite):
     def __init__(self,angle):
         py.sprite.Sprite.__init__(self)
@@ -8,7 +32,7 @@ class Bullet(py.sprite.Sprite):
         self.dir = [1,0]
         self.time = 5
 
-        self.image = py.image.load("../images/bullet.png")
+        self.image = get_bullet_image()
 
         self.rect = self.image.get_rect()
         self.speed  = 1500
