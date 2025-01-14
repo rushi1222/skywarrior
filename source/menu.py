@@ -99,10 +99,10 @@ class Menu:
 
             self.menu_surface = py.Surface((450, 500))
             self.menu_surface = py.Surface.convert_alpha(self.menu_surface)
-            self.menu_surface.fill((20, 20, 100, 200))
+            self.menu_surface.fill((0, 0, 0, 180))
             self.current_option_texts = []
             ind = -1
-            t, tr = self.fontsystem.draw("SkyWars", (200, 50, 50))
+            t, tr = self.fontsystem.draw("Sky Warrior", (200, 50, 50))
 
             tr.x = 20
             tr.y = 20
@@ -168,9 +168,9 @@ class Menu:
             for level_num in range(1, 6):
                 small_surface = py.Surface.convert_alpha(py.Surface((120, 120)))
                 if self.optionon == level_num - 1:
-                    small_surface.fill((240, 235, 100, 100))
+                    small_surface.fill((255, 255, 0, 100))
                 else:
-                    small_surface.fill((20, 20, 10, 100))
+                    small_surface.fill((255, 255, 224, 100))
                 text = f"Level {level_num}"
                 t, tr = self.fontsystem.draw(text)
                 tr.centerx = 60
