@@ -30,7 +30,7 @@ def get_lock_image():
     if "lock_image" in IMAGE_CACHE:
         return IMAGE_CACHE["lock_image"]
     
-    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/background.png"
+    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/lock.jpg"
     response = requests.get(url)
     if response.status_code != 200:
         raise FileNotFoundError(f"Could not download lock_image from {url}")

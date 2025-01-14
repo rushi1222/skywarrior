@@ -22,18 +22,24 @@ import assets
 
 IMAGE_CACHE = {}
 
-def get_bg_image():
-    if "bg_image" in IMAGE_CACHE:
-        return IMAGE_CACHE["bg_image"]
+BG_IMAGES = {
+    1: "https://sky-warrior.s3.us-east-2.amazonaws.com/images/background4.png",
+    2: "https://sky-warrior.s3.us-east-2.amazonaws.com/images/background2.png",
+    3: "https://sky-warrior.s3.us-east-2.amazonaws.com/images/background4.png",
+    4: "https://sky-warrior.s3.us-east-2.amazonaws.com/images/background2.png",
+    5: "https://sky-warrior.s3.us-east-2.amazonaws.com/images/background4.png",
+}
 
-    url = "https://sky-warrior.s3.us-east-2.amazonaws.com/images/BG.png"
+def get_bg_image(level):
+    if level in IMAGE_CACHE:
+        return IMAGE_CACHE[level]
+    url = BG_IMAGES.get(level, BG_IMAGES[1])  # default if missing
     response = requests.get(url)
     if response.status_code != 200:
         raise FileNotFoundError(f"Could not download background from {url}")
-
     bg_bytes = io.BytesIO(response.content)
-    surface = py.image.load(bg_bytes).convert_alpha()
-    IMAGE_CACHE["bg_image"] = surface
+    surface = py.image.load(bg_bytes).convert()
+    IMAGE_CACHE[level] = surface
     return surface
 
 class Game:
@@ -45,6 +51,7 @@ class Game:
         #----------Menusystem---------
         self.menu_system = menu.Menu()
 
+        
         ############
         self.mouse_clicked = False
         self.quit = False
@@ -112,8 +119,13 @@ class Game:
         self.tickspeedrate = 0.05
         self.tickspeed = 0.1
         
-        self.bg_image = get_bg_image()
+        self.level = 1
+        self.bg_image = get_bg_image(self.level)
 
+        self.bg_x = 0
+        self.bg_y = 0
+        self.bg_width = self.bg_image.get_width()
+        self.bg_height = self.bg_image.get_height()
         # Create an empty surface matching bg size (if you need it)
         self.background = py.Surface(self.bg_image.get_size(), py.SRCALPHA)
 
@@ -132,8 +144,13 @@ class Game:
         self.score_changed = False
         self.score_scale = 1
 
+    def set_level(self, new_level):
+        self.level = new_level
+        self.bg_image = get_bg_image(self.level)
+
     def initiate_game(self):
         level = self.menu_system.level_selected
+        self.set_level(level)
         leveldata = self.menu_system.database.leve_loader.get_Level(level)
 
         for i in range(leveldata[0]):
@@ -224,16 +241,18 @@ class Game:
 
 
   
+    # ...existing code...
     def draw(self):
         if self.menu_system.state == "start" and self.game_exists:
             if not self.turn_screen_red:
-                # Draw space background image
-                #decreased background opacity by 30%
-                self.win.fill((50,0,100))
-
+                # Draw infinite scrolling background
+                self.bg_x = -self.player.pos[0] % self.bg_width
+                self.bg_y = -self.player.pos[1] % self.bg_height
+                for x in range(-self.bg_width, config.screen_width + self.bg_width, self.bg_width):
+                    for y in range(-self.bg_height, config.screen_height + self.bg_height, self.bg_height):
+                        self.win.blit(self.bg_image, (x + self.bg_x, y + self.bg_y))
             else:
                 # Gradually change background color from red to normal
-                
                 self.win.fill((self.screen_r, self.screen_g, self.screen_b))
                 color_change_perstep = 20
                 if self.screen_r + color_change_perstep < 250 and not self.turn_screen_normal:
@@ -242,7 +261,6 @@ class Game:
                     self.screen_g -= color_change_perstep
                 else:
                     self.turn_screen_normal = True
-
                 if self.turn_screen_normal:
                     if self.screen_r > 140:
                         self.screen_r -= color_change_perstep
@@ -261,28 +279,13 @@ class Game:
                 self.win.blit(self.player.image, self.player.rect)
 
             self.missiles.draw(self.win)
-
             for figh in self.fighters:
                 figh.rect.centerx += self.camoffx
                 figh.rect.centery += self.camoffy
             self.fighters.draw(self.win)
 
-            # Draw particle systems for all sprites
             for missile in self.missiles.sprites():
                 missile.particle_system.draw(self.win, self.player.pos)
-
-            
-
-            # for missile in self.missiles.sprites():
-            #     for i in missile.particle_system.particles:
-            #         if (i.size < config.particle_expansion_size):
-            #             py.draw.circle(self.win, (100, 100, 100), vectors.ret_int(i.renderpos), int(i.size),
-            #                            int(i.size))
-            #             i.size += .1
-            # for i in self.player.particle_system.particles:
-            #     if (i.size < config.particle_expansion_size):
-            #         py.draw.circle(self.win, (100, 100, 100), vectors.ret_int(i.renderpos), int(i.size), int(i.size))
-            #         i.size += .1
 
             self.draw_explosions()
             self.draw_missile_fuel_indicator()
@@ -290,7 +293,6 @@ class Game:
             self.draw_clouds()
             self.draw_hud()
             self.draw_emps()
-            # self.draw_sparks()
 
             self.win.blit(self.minimap.image, (30, config.screen_height - 128))
         else:
