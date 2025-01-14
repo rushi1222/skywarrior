@@ -1,6 +1,6 @@
 # Sky Warrior
 
-![SkyWarrior Banner](https://sky-warrior.s3.us-east-2.amazonaws.com/2620B2CB-0526-4D89-A925-D09EA760D3A2.jpg)
+![SkyWarrior Banner](https://sky-warrior.s3.us-east-2.amazonaws.com/images/background.png)
 
 **Sky Warrior** is a fast-paced 2D space combat game built with **Python** and **Pygame**. Pilot your spaceship through waves of AI-driven fighters, dodge missiles, and emerge victorious by unlocking higher levels. The gameplay features **intense dogfights**, **EMP attacks**, **turbo boosts**, **slow motion** mechanics, and a **score system** that rewards smart tactics.
 
