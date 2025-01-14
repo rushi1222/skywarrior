@@ -229,7 +229,8 @@ skywarrior/
 ## Credits
 
 ### Sprites and Images
-- **Clouds:** [Some clouds](https://opengameart.org/content/some-clouds) *(re-edited for color, size, and borders)*  
+- **Clouds:** [Some clouds](https://opengameart.org/content/some-clouds) *(re-edited for color, size, and borders)*
+- **Background:** [Background]([https://opengameart.org/content/some-clouds](https://free-game-assets.itch.io/free-sky-with-clouds-background-pixel-art-set)) *(re-edited for color, size, and borders)*
 - **Enemy Ship (Fighter):** [Space Shooter Assets 2](https://opengameart.org/content/space-shooter-assets-2) *(re-edited)*  
 - **Player (Ship) and Enemy Ship (EMP):** [Kenney’s Space Shooter Redux](https://kenney.nl/assets/space-shooter-redux) *(re-edited)*  
 - **Bullet, Missiles, Health, and Special Fuel Bar:** Custom Photoshop work by the developers.
